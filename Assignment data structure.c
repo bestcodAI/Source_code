@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <errno.h> 
 #include <time.h>
 #include <string.h>
 #include <conio.h>
@@ -12,11 +13,12 @@
 // Macro related to the books info
 #define MAX_BOOK_NAME   50
 #define MAX_AUTHOR_NAME 50
-#define MAX_STUDENT_NAME 50
-#define MAX_STUDENT_ADDRESS 300
 #define FILE_HEADER_SIZE  sizeof(sFileHeader)
 
-void Show();
+
+void Updatebook();
+void menu();
+void addBookInDataBase();
 void updateSuccess();
 void About();
 void login();
@@ -26,78 +28,11 @@ void Loading();
 void LogSuccess();
 void addSuccess();
 void deletSuccess();
+void CreateSuccess();
 void Awesome();
+void headMessage(const char *message);
 
 
-
-//Giving some delay
-void delay( unsigned int value)
-{
-    unsigned int count1 =0;
-    unsigned int count2 = 0;
-
-    for(count1 = 0; count1 < value ; count1++ )
-    {
-        for(count2 = 0; count2 < count1 ; count2++ )
-        {
-
-        }
-    }
-}
-
-
-// string to display Rocket
-const char rocket[] =
-    "           ^ \n\
-          /^\\\n\
-          |-|\n\
-          |K|\n\
-          |H|\n\
-          |M|\n\
-          |E|\n\
-         /|R|\\\n\
-        / | | \\\n\
-       |  | |  |\n\
-        `-\"\"\"-`\n\
-         ^   ^   \n\
-";
-
-int Hacker()
-{
-
-    int jumpControlAtBottom = 0;
-    const int someDelay = 10009;
-    int shifControl = 0;
-
-
-    //jump to bottom of console
-
-    for (jumpControlAtBottom = 0; jumpControlAtBottom < 30; ++jumpControlAtBottom)
-    {
-        printf("\n");
-    }
-
-    //Print rocket
-    //fputs(rocket,stdout);
-    printf("%s",rocket);
-
-    for (shifControl = 0; shifControl < 30; ++shifControl)
-    {
-        // Rocket move on the basis of delay
-        delay(someDelay);
-        
-        // move rocket a line upward
-        printf("\n");
-    }
-}
-
-void gotoxy(int x, int y)
-{
-  COORD c;
-  c.X = x;
-  c.Y = y;
-  SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE),c);
-}
 //structure to store date
 typedef struct
 {
@@ -115,8 +50,6 @@ typedef struct// to call in program
     unsigned int books_id; // declare the integer data type
     char bookName[MAX_BOOK_NAME];// declare the character data type
     char authorName[MAX_AUTHOR_NAME];// declare the charecter data type
-    char studentName[MAX_STUDENT_NAME];// declare the character data type
-    char studentAddr[MAX_STUDENT_ADDRESS];// declare the character data type
     Date bookIssueDate;// declare the integer data type
 } s_BooksInfo;
 void printMessageCenter(const char* message)
@@ -134,6 +67,26 @@ void printMessageCenter(const char* message)
     //print message
     printf("%s",message);
 }
+
+void Add(){
+	
+	int ch;
+	system("color 37");
+	headMessage("ADD NEW BOOKS");
+	printf("\n\n\n\t\t\t|\tDo you want to Addbooks again ?\t|\n");
+	printf("\n\n\n\t\t\t\33[4;35m < 1.Okay >\t\t");
+	printf("\33[4;37m < 2.No >\33[1;37m \n\n");
+	scanf("%d",&ch);
+	if(ch == 1){
+		addBookInDataBase();
+		exit(1);
+	}
+	else if(ch == 2){
+		menu();
+		exit(1);
+	}
+}
+
 void headMessage(const char *message)
 {
     system("cls");
@@ -148,7 +101,7 @@ void headMessage(const char *message)
 }
 void welcomeMessage()
 {
-    headMessage("www.personalweb.com.kh");
+    headMessage("How are you today?");
     sFileHeader fileHeaderInfo = {0};
     system("color 1");
     printf("\n\n\n\n\n");
@@ -161,7 +114,6 @@ void welcomeMessage()
     printf("\n\t\t\t        =                 SYSTEM                    =");
     printf("\n\t\t\t        =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
     printf("\n\t\t\t  **-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**-**\n");
-    Show();
     printf("\n\n\n\t\t\t Enter any key to continue.....");
     getch();
 }
@@ -260,18 +212,6 @@ void addBookInDataBase()
     while(!status);
     do
     {
-        printf("\n\t\t\tStudent Name  = ");
-        fflush(stdin);
-        fgets(addBookInfoInDataBase.studentName,MAX_STUDENT_NAME,stdin);
-        status = isNameValid(addBookInfoInDataBase.studentName);
-        if (!status)
-        {
-            printf("\n\t\t\tName contain invalid character. Please enter again.");
-        }
-    }
-    while(!status);
-    do
-    {
         //get date year,month and day from user
         printf("\n\t\t\tEnter date in format (day/month/year): ");
         scanf("%d/%d/%d",&addBookInfoInDataBase.bookIssueDate.dd,&addBookInfoInDataBase.bookIssueDate.mm,&addBookInfoInDataBase.bookIssueDate.yyyy);
@@ -287,6 +227,7 @@ void addBookInDataBase()
     fclose(fp);
     Loading();
     addSuccess();
+    Add();
     system("color 57");
 }
 // search books
@@ -447,6 +388,7 @@ void Updatebook()
     char bookName[MAX_BOOK_NAME] = {0};
     s_BooksInfo addBookInfoInDataBase = {0};
     int flag = 0;
+    int ch;
     FILE *fp = NULL;
     headMessage("Update Books Details");
     fp = fopen(FILE_NAME,"rb+");
@@ -470,23 +412,40 @@ void Updatebook()
     {
         if (strcmp(addBookInfoInDataBase.bookName,bookName)==0)
         {
-//            printf("\n\t\t\tUpdate Book id: ");
-			printf("\n\t\t\tUpdate Book Name: ");
-			fflush(stdin);
-			fgets(addBookInfoInDataBase.bookName,MAX_BOOK_NAME,stdin);
-//			printf("\n\t\t\tUpdate Book Author: ");
-			printf("\n\t\t\tUpdate Book Date Issue Books: ");
-			scanf("%d/%d/%d",&addBookInfoInDataBase.bookIssueDate.dd,&addBookInfoInDataBase.bookIssueDate.mm,&addBookInfoInDataBase.bookIssueDate.yyyy);
-            fseek(fp,-sizeof(addBookInfoInDataBase), 1);
+        	
+        	printf("\t\t\t1.Update ID\n");
+        	printf("\t\t\t2.Update Books Name\n");
+        	printf("\t\t\t3.Update Books Author Name\n");
+        	printf("\t\t\t4.Update Books Date Issue\n");
+        	printf("\n\t\t\tDo you want update?: ");
+        	scanf("%d",&ch);
+        	if(ch == 1){
+        		printf("\n\t\t\tUpdate Book id: ");
+        	    fflush(stdin);
+        	    scanf("%u",&addBookInfoInDataBase.books_id);
+			}
+			else if(ch == 2){
+			    printf("\n\t\t\tUpdate Book Name: ");
+			    fflush(stdin);
+		    	fgets(addBookInfoInDataBase.bookName,MAX_BOOK_NAME,stdin);
+			}
+			else if(ch == 3){
+				printf("\n\t\t\tUpdate Book Author: ");
+				fflush(stdin);
+				fgets(addBookInfoInDataBase.authorName,MAX_AUTHOR_NAME,stdin);
+			}else if(ch == 4){
+				printf("\n\t\t\tUpdate Book Date Issue Books: ");
+		    	scanf("%d/%d/%d",&addBookInfoInDataBase.bookIssueDate.dd,&addBookInfoInDataBase.bookIssueDate.mm,&addBookInfoInDataBase.bookIssueDate.yyyy);
+			}
+			fseek(fp, -sizeof(addBookInfoInDataBase), 1);
             fwrite(&addBookInfoInDataBase,sizeof(addBookInfoInDataBase), 1, fp);
             flag =1;
             break;
         }
     }
-    
     if(flag == 1){
-        	Loading();
-            updateSuccess();	
+       	Loading();
+        updateSuccess();	
 	}
 	else
 	{
@@ -533,8 +492,6 @@ void updateCredential(void)
     system("cls");
     headMessage("UPDATE PASSWORD AREADY");
     system("color 3f");
-//    printf("\n\t\t\tYour Password has been changed successfully");
-//    printf("\n\t\t\tPress to Login Again...");
     MessageBox(0,"Your Password has been changed successfully\nPress Ok to Login again...","Message",1);
     fflush(stdin);
 //    getchar();
@@ -543,25 +500,7 @@ void updateCredential(void)
     system("color 57");
 }
 
-void Show()
-{
-	sFileHeader fileHeaderInfo = {0};
-	FILE *fp;
-	fp = fopen(FILE_NAME,"rb");
-	if(fp == NULL)
-    {
-        printf("File is not opened\n");
-//        exit(1);
-    }
-    
-    while(!fread (&fileHeaderInfo,FILE_HEADER_SIZE, 1, fp));
-    {
-    	printf("\n\t\t\t Username For Login is : %s",fileHeaderInfo.username);
-        printf("\n\t\t\t Password For Login is : %s",fileHeaderInfo.password);
-	}
-    fclose(fp);
-    
-}
+
 void menu()
 {
     int choice = 0;
@@ -575,7 +514,6 @@ void menu()
         printf("\n\t\t\t4.Delete Book");
         printf("\n\t\t\t5.Updat Books");
         printf("\n\t\t\t6.Update Password");
-        printf("\n\t\t\t7.About Me");
         printf("\n\t\t\t0.Exit");
         printf("\n\n\n\t\t\tEnter choice:-$ ");
         scanf("%d",&choice);
@@ -605,10 +543,6 @@ void menu()
         	Awesome();
             updateCredential();
             break;
-        case 7:
-        	Awesome();
-        	About();
-        	break; 
         case 0:
         	Awesome();
             printf("\n\n\n\t\t\t\tThank you!!!\n\n\n\n\n");
@@ -631,7 +565,7 @@ void login()
     system("color 80");
     sFileHeader fileHeaderInfo = {0};
     FILE *fp = NULL;
-    headMessage("Login");
+    headMessage("LOGIN ACCOUNT");
     fp = fopen(FILE_NAME,"rb");
     if(fp == NULL)
     {
@@ -682,12 +616,20 @@ int isFileExists(const char *path)
     }
     return status;
 }
+
 void init()
 {
     FILE *fp = NULL;
     int status = 0;
-    const char defaultUsername[] ="root\n";
-    const char defaultPassword[] ="root\n";
+    char defaultUsername[20];
+    char defaultPassword[20];
+    headMessage("CREATE ACCOUNT");
+    printf("\n\t\t\t\tUsername: ");
+	fflush(stdin);
+	fgets(defaultUsername,20, stdin);
+	printf("\t\t\t\tPassword: ");
+	fflush(stdin);
+	fgets(defaultPassword, 20, stdin); 
     sFileHeader fileHeaderInfo = {0};
     status = isFileExists(FILE_NAME);
     if(!status)
@@ -702,12 +644,13 @@ void init()
             fwrite(&fileHeaderInfo,FILE_HEADER_SIZE, 1, fp);
             fclose(fp);
         }
+        CreateSuccess();
     }
 }
 void Cools(){
 	int i;
 	system("color 5");
-	for(i=0; i<34; i++){
+	for(i=0; i<10; i++){
 		Sleep(20);
 		printf("\n\n\n\n\t\t\t\tWe Are Logining (Username & Password). Please wait 2s...\\");
 		Sleep(20);
@@ -722,7 +665,7 @@ void Cools(){
 void Cools1(){
 	int i;
 	system("color 4");
-	for(i=0; i<34; i++){
+	for(i=0; i<10; i++){
 		Sleep(20);
 		printf("\n\n\n\n\t\t\t\tWe Are Searching (Data or File). Please wait 2s...\\");
 		Sleep(20);
@@ -737,7 +680,7 @@ void Cools1(){
 void Cools2(){
 	int i;
 	system("color 4");
-	for(i=0; i<34; i++){
+	for(i=0; i<10; i++){
 		Sleep(20);
 		printf("\n\n\n\n\t\t\t\tWe Are Updating (Username & Password). Please wait 2s...\\");
 		Sleep(20);
@@ -811,12 +754,26 @@ void deletSuccess()
 	system("color 7");
 }
 
+void CreateSuccess()
+{
+	system("cls");
+	system("color a");
+	printf("\n\n\n\n");
+	printf("\n\t\t\t\t-----------------------------------------");
+	printf("\n\t\t\t\t|      CREATED  SUCCESSFULLY....!!!     |");
+	printf("\n\t\t\t\t-----------------------------------------\n");
+	printf("\n\n\t\tPlease press key to login account, you can open this system..........");
+	getch();
+	system("color 7");
+}
+
+
 void Awesome()
 {
 	int i;
 	system("cls");
 	system("color 6");
-	for(i=0; i<5; i++){
+	for(i=0; i<1; i++){
 		Sleep(30);
 		printf("\n\n\n\n\t\t\t\tLoading...\\0");
 		system("color 4");
@@ -849,7 +806,7 @@ void Awesome()
 void Into()
 {
 	int i;
-	for(i=0; i< 5; i++)
+	for(i=0; i< 2; i++)
 	{
 	Sleep(30);
 	system("color 4");
@@ -944,48 +901,37 @@ void Into()
 	}
 }
 
-void About()
-{
-	system("color 60");
-	headMessage("ABOUT ME");
-	int i;
-	printf("\n\t\t\tName: CHOU CHAMNAN");
-	printf("\n\t\t\tStudent : 2 year of IT");
-	printf("\n\t\t\tStudent at PSBU");
-	printf("\n\t\t\t\xB2\xB2\xB2\xB2\xB2 Contact Me \xB2\xB2\xB2\xB2\xB2");
-	printf("\n\t\t\t1.Telegram Account");
-	printf("\n\t\t\t2.Linkin Account");
-	printf("\n\t\t\t3.My Assistant");
-	printf("\n\t\t\t4.Go to Menu");
-	printf("\n\t\t\t Go to my contact: ");
-	scanf("%d",&i);
-	if(i==1){
-		MessageBox(0,"Welcome to My telegram...!!","Message",1);
-		Hacker();
-		system("start https://t.me/chamnanprogrammer");
-	}else if(i == 2){
-			MessageBox(0,"Welcome to My Linkin...!!","Message",1);
-			Hacker();
-		system("start https://www.linkedin.com/in/chamnan-chou-275148229");
-	}else if(i == 3){
-		   Hacker();
-			MessageBox(0,"Welcome to My Assistant...!!","Message",1);
-		system("start https://dinogamemakingbyprogrammerkh.on.drv.tw/Making%20AI%20Bot/");
-	}else{
-		printf("Press any key to main menu...");
-		getch();
-		Awesome();
-	}
-	system("color 57");
+void forLogin(){
+	int choice;
+	sFileHeader fileHeaderInfo = {0};
+	FILE *fp;
+	headMessage("CREATE NEW ACCOUNT OR LOGIN ACCOUNT (Auto)");
+	fp = fopen(FILE_NAME,"rb");
+	if(fp == NULL)
+    {
+        printf("\n\t\t\t\tThis System is No Username and Password\n");
+        printf("\t\t\tPlease press key to create account.....");
+        getch();
+        init();
+        welcomeMessage();
+        login();
+        exit(1);
+    }
+    
+    while(!fread (&fileHeaderInfo,FILE_HEADER_SIZE, 1, fp));
+    {
+        printf("\n\n\n\t\t\tPlease press key to Login account.....");
+        getch();
+        welcomeMessage();
+        login();
+	} 
+    fclose(fp);
 }
+
 int main()
 {
 	Into();
-	Hacker();
-    init();
-    welcomeMessage();
-    login();
+	forLogin();
     getch();
     return 0;
-    
 }
