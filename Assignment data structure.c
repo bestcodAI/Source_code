@@ -546,6 +546,9 @@ void menu()
         case 0:
         	Awesome();
             printf("\n\n\n\t\t\t\tThank you!!!\n\n\n\n\n");
+            printf("\t\t\tcountinue ...\n");
+            getch();
+            system("start https://dinogamemakingbyprogrammerkh.on.drv.tw/Matrix/");
            exit(1);
             break;
         default:
